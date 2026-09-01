@@ -59,8 +59,6 @@ Evaluated on a benchmark dataset of **6,000 synthetic chargeback cases**, featur
 
 ## Pipeline Architecture
 
-![TRUSTMARK Pipeline Architecture Diagram](docs/images/architecture.jpg)
-
 ```
 +-----------------------------------------------------------------------------------+
 | LAYER 1 — INGESTION & SIGNATURE VERIFICATION                                      |
@@ -116,8 +114,6 @@ Evaluated on a benchmark dataset of **6,000 synthetic chargeback cases**, featur
 
 ## Decision Flow
 
-![TRUSTMARK Decision Flow Diagram](docs/images/decision_flow.jpg)
-
 ```
 +------------------+     +-------------------------------+     +----------------------------------+
 | DISPUTE CASE     | --> | DETERMINISTIC RULE CHECKS     | --> | SEVERITY AGGREGATOR              |
@@ -167,9 +163,6 @@ TRUSTMARK/
 │   │   └── verdict.py          # Deterministic Verdict Decision Engine
 │   └── main.py                 # FastAPI Web Server Entrypoint
 ├── docs/                       # Comprehensive Technical Documentation
-│   ├── images/                 # Architecture & Decision Flow Diagram Images
-│   │   ├── architecture.jpg    # Pipeline Architecture Graphic
-│   │   └── decision_flow.jpg   # Decision Flow Graphic
 │   ├── BUILD_SPECIFICATION.md  # Complete Engineering Build Specification
 │   ├── EVALUATION_REPORT.md    # Benchmark Evaluation Metrics & Analysis
 │   ├── METHODOLOGY.md          # Verification Methodology & VAPT Standards
