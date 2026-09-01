@@ -1,0 +1,52 @@
+{
+  "total_test_cases": 1868,
+  "clean_cases_count": 782,
+  "clean_false_positives": 0,
+  "false_positive_cost_statement": "0 clean cases were incorrectly flagged out of 782 clean test cases (0.00% false-positive rate), which would have caused a merchant to needlessly delay or block submission of a valid case.",
+  "aggregate_metrics": {
+    "total_TP": 996,
+    "total_FP": 0,
+    "total_FN": 90,
+    "precision": 1.0,
+    "recall": 0.9171,
+    "f1_score": 0.9568
+  },
+  "per_type_metrics": {
+    "address_mismatch": {
+      "TP": 287,
+      "FP": 0,
+      "FN": 0,
+      "TN": 1581,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0
+    },
+    "date_impossibility": {
+      "TP": 283,
+      "FP": 0,
+      "FN": 0,
+      "TN": 1585,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0
+    },
+    "amount_mismatch": {
+      "TP": 247,
+      "FP": 0,
+      "FN": 0,
+      "TN": 1621,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0
+    },
+    "comms_contradiction": {
+      "TP": 179,
+      "FP": 0,
+      "FN": 90,
+      "TN": 1599,
+      "precision": 1.0,
+      "recall": 0.6654,
+      "f1_score": 0.7991
+    }
+  }
+}
