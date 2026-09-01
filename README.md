@@ -59,101 +59,85 @@ Evaluated on a benchmark dataset of **6,000 synthetic chargeback cases**, featur
 
 ## Pipeline Architecture
 
-```mermaid
-flowchart TD
-    A([Incoming Razorpay Webhook]) --> B
+![TRUSTMARK Pipeline Architecture Diagram](docs/images/architecture.jpg)
 
-    subgraph INGESTION ["Layer 1 — Ingestion & Signature Verification"]
-        B[FastAPI Webhook Listener\n/api/webhooks/razorpay/dispute]
-        B --> C[HMAC-SHA256 Signature Verification\nX-Razorpay-Signature < 1ms]
-    end
-
-    C --> D
-
-    subgraph DATA ["Layer 2 — Database & Storage"]
-        D[SQLite Database\nmerchantguard_demo.db]
-        D --> E[Disputes / Orders / Shipments / Comms / Evidence]
-    end
-
-    E --> F
-
-    subgraph ENGINE ["Layer 3 — Deterministic Verification Engine"]
-        F --> G[Address Mismatch Engine\nNormalized Levenshtein Distance < 85%]
-        G --> H[Timeline Chronology Engine\nOrder <= Ship <= Delivery Check]
-        H --> I[Amount Parity Engine\nDispute Amount vs Order Amount]
-        I --> J[Customer Chat NLP Engine\nSentence-Transformers MiniLM Cosine > 0.65]
-    end
-
-    J --> K
-
-    subgraph CE3 ["Layer 4 — Visa Compulsory Evidence 3.0 Engine"]
-        K[120-Day Lookback Prior Orders]
-        K --> L{Cross-Match 2+ Elements\nIP / Device ID / Address}
-        L -- "2+ Matches" --> M[CE3 Qualified\nRemedy Granted]
-        L -- "< 2 Matches" --> N[CE3 Ineligible]
-    end
-
-    M --> O
-    N --> O
-
-    subgraph VERDICT ["Layer 5 — VAPT Scoring & Verdict Engine"]
-        O[Evidence Completeness & Severity Scoring\nCRITICAL / HIGH / LOW / INFO]
-        O --> P{Verdict Routing}
-        P -- "CRITICAL > 0" --> Q([DO NOT SUBMIT — CONFLICT])
-        P -- "HIGH > 0" --> R([NEEDS REVIEW])
-        P -- "No Critical or High" --> S([READY])
-    end
-
-    Q --> T
-    R --> T
-    S --> T
-
-    subgraph EXPLAIN ["Layer 6 — Advisory LLM & Fallback Layer"]
-        T[OpenRouter LLM Integration\ngpt-4o-mini / zero-cost models]
-        T --> U[Multi-Model Fallback Chain\ngpt-4o-mini -> nemotron -> static fallback]
-    end
-
-    U --> V[React 18 + Vite Dashboard\nQueue / Detail / Evidence / Benchmark]
-
-    style INGESTION fill:#1a1a2e,stroke:#3d7fff,color:#e8ecf4
-    style DATA fill:#1a1a2e,stroke:#a855f7,color:#e8ecf4
-    style ENGINE fill:#1a1a2e,stroke:#00d4aa,color:#e8ecf4
-    style CE3 fill:#1a1a2e,stroke:#ff6b35,color:#e8ecf4
-    style VERDICT fill:#1a1a2e,stroke:#a855f7,color:#e8ecf4
-    style EXPLAIN fill:#1a1a2e,stroke:#3d7fff,color:#e8ecf4
+```
++-----------------------------------------------------------------------------------+
+| LAYER 1 — INGESTION & SIGNATURE VERIFICATION                                      |
+| • FastAPI Webhook Listener (/api/webhooks/razorpay/dispute)                      |
+| • HMAC-SHA256 Signature Check (X-Razorpay-Signature)                              |
++-----------------------------------------+-----------------------------------------+
+                                          |
+                                          v
++-----------------------------------------+-----------------------------------------+
+| LAYER 2 — DATABASE & STORAGE                                                      |
+| • SQLite Database (merchantguard_demo.db)                                         |
+| • Disputes / Orders / Shipments / Comms Logs / Evidence Records                   |
++-----------------------------------------+-----------------------------------------+
+                                          |
+                                          v
++-----------------------------------------+-----------------------------------------+
+| LAYER 3 — DETERMINISTIC CONTRADICTION ENGINE                                      |
+| • Address Mismatch Engine (Normalized Levenshtein Distance < 85%)                 |
+| • Timeline Chronology Engine (Order <= Ship <= Delivery Check)                    |
+| • Amount Parity Engine (Dispute Amount vs Order Amount)                           |
+| • Customer Chat NLP Engine (Sentence-Transformers MiniLM Cosine > 0.65)           |
++-----------------------------------------+-----------------------------------------+
+                                          |
+                                          v
++-----------------------------------------+-----------------------------------------+
+| LAYER 4 — VISA COMPULSORY EVIDENCE 3.0 (CE3) ENGINE                               |
+| • 120-Day Lookback Prior Customer Orders                                          |
+| • Cross-Match 2+ Elements (IP Address / Device ID / Shipping Address)             |
++-----------------------------------------+-----------------------------------------+
+                                          |
+                                          v
++-----------------------------------------+-----------------------------------------+
+| LAYER 5 — VAPT SCORING & VERDICT ENGINE                                           |
+| • Evidence Completeness & Severity Scoring (CRITICAL / HIGH / LOW / INFO)         |
+| • Verdict Decision: READY / NEEDS REVIEW / DO NOT SUBMIT                          |
++-----------------------------------------+-----------------------------------------+
+                                          |
+                                          v
++-----------------------------------------+-----------------------------------------+
+| LAYER 6 — ADVISORY LLM & FALLBACK LAYER                                           |
+| • OpenRouter LLM Integration (gpt-4o-mini / zero-cost candidates)                 |
+| • Multi-Model Fallback Chain (gpt-4o-mini -> nemotron -> static text)              |
++-----------------------------------------+-----------------------------------------+
+                                          |
+                                          v
++-----------------------------------------+-----------------------------------------+
+| LAYER 7 — REACT 18 + VITE DASHBOARD UI                                            |
+| • Verification Queue / Dispute Detail / Evidence Library / Benchmark Report       |
++-----------------------------------------------------------------------------------+
 ```
 
 ---
 
 ## Decision Flow
 
-```mermaid
-flowchart LR
-    A[Dispute Event\nID: disp_P9zM4rSoB6xN3] --> B{Deterministic\nRule Checks}
+![TRUSTMARK Decision Flow Diagram](docs/images/decision_flow.jpg)
 
-    B --> C[Address Check\nJubilee Hills vs Marine Drive]
-    B --> D[Timeline Check\nShip Date vs Order Date]
-    B --> E[Amount Check\nDispute vs Order Amount]
-    B --> F[Chat NLP Check\nMiniLM Cosine Sim]
-
-    C --> G{Severity\nAggregator}
-    D --> G
-    E --> G
-    F --> G
-
-    G -- "CRITICAL Contradiction" --> H[DO NOT SUBMIT\nBlock Submission]
-    G -- "HIGH Missing Doc" --> I[NEEDS REVIEW\nHuman Intervention]
-    G -- "All Valid" --> J[READY\nSubmit to Gateway]
-
-    H --> K[OpenRouter LLM\nPlain-Language Summary]
-    I --> K
-    J --> K
-
-    K --> L[React Dashboard UI\n✨ AI Summary Badge]
-
-    style H fill:#7f1d1d,stroke:#ef4444,color:#fee2e2
-    style I fill:#713f12,stroke:#eab308,color:#fef9c3
-    style J fill:#14532d,stroke:#22c55e,color:#dcfce7
+```
++------------------+     +-------------------------------+     +----------------------------------+
+| DISPUTE CASE     | --> | DETERMINISTIC RULE CHECKS     | --> | SEVERITY AGGREGATOR              |
+| ID: #CB7894      |     | • Address Similarity          |     | • CRITICAL > 0 -> DO NOT SUBMIT  |
+| Amount: ₹15,000  |     | • Timeline Chronology         |     | • HIGH > 0     -> NEEDS REVIEW   |
+| Reason: 13.1     |     | • Amount Parity               |     | • Clean        -> READY TO SUBMIT|
++------------------+     | • Chat Sentiment NLP          |     +----------------+-----------------+
+                         +-------------------------------+                      |
+                                                                                v
+                                                               +----------------+-----------------+
+                                                               | ADVISORY LLM EXPLANATION LAYER   |
+                                                               | • 8-15 Word Summary              |
+                                                               | • 2-4 Sentence Guidance Plan     |
+                                                               +----------------+-----------------+
+                                                                                |
+                                                                                v
+                                                               +----------------+-----------------+
+                                                               | REACT DASHBOARD INTERFACE        |
+                                                               | ✨ AI Summary Badge & Document   |
+                                                               +----------------------------------+
 ```
 
 ---
@@ -183,6 +167,9 @@ TRUSTMARK/
 │   │   └── verdict.py          # Deterministic Verdict Decision Engine
 │   └── main.py                 # FastAPI Web Server Entrypoint
 ├── docs/                       # Comprehensive Technical Documentation
+│   ├── images/                 # Architecture & Decision Flow Diagram Images
+│   │   ├── architecture.jpg    # Pipeline Architecture Graphic
+│   │   └── decision_flow.jpg   # Decision Flow Graphic
 │   ├── BUILD_SPECIFICATION.md  # Complete Engineering Build Specification
 │   ├── EVALUATION_REPORT.md    # Benchmark Evaluation Metrics & Analysis
 │   ├── METHODOLOGY.md          # Verification Methodology & VAPT Standards
