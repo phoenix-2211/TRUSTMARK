@@ -13,6 +13,7 @@
   <img src="https://img.shields.io/badge/Python-3.11+-3776AB.svg?logo=python&logoColor=white" alt="Python Version" />
   <img src="https://img.shields.io/badge/React-18.2-61DAFB.svg?logo=react&logoColor=black" alt="React Version" />
   <img src="https://img.shields.io/badge/Track--02-AI%20Risk%20Manager-orange.svg" alt="Razorpay AI Buildathon 2026" />
+  <a href="https://youtu.be/enbr7XDSg0E"><img src="https://img.shields.io/badge/YouTube-Video%20Demo-FF0000.svg?logo=youtube&logoColor=white" alt="YouTube Video Demo" /></a>
   <a href="[LIVE_DEMO_URL]"><img src="https://img.shields.io/badge/Live%20Demo-Open%20App-002CB3.svg" alt="Live Demo" /></a>
 </p>
 
@@ -26,6 +27,7 @@ A pre-submission chargeback evidence verification gate for merchants and payment
 
 - [The Problem](#the-problem)
 - [What TRUSTMARK Does](#what-trustmark-does)
+- [Video Walkthrough](#video-walkthrough)
 - [Architecture — 7-Layer Pipeline](#architecture--7-layer-pipeline)
 - [Tech Stack](#tech-stack)
 - [Key Results](#key-results)
@@ -52,6 +54,22 @@ When card networks (Visa, Mastercard) detect contradictory evidence, the submiss
 Existing chargeback platforms (such as Stripe Smart Disputes or Chargeflow) focus on assembling and auto-submitting evidence quickly. TRUSTMARK operates differently: it is an independent, defense-only verification gate that deliberately attempts to falsify the merchant's own evidence prior to submission. 
 
 TRUSTMARK contains **zero dispute-mutation endpoints** (no Accept, Submit, or Challenge buttons exist). It acts purely as a pre-submission security auditor to prevent premature or flawed network submissions.
+
+---
+
+## Video Walkthrough
+
+Watch the full system presentation, live dispute verification walkthrough, and architecture breakdown on YouTube:
+
+<p align="center">
+  <a href="https://youtu.be/enbr7XDSg0E">
+    <img src="https://img.youtube.com/vi/enbr7XDSg0E/maxresdefault.jpg" alt="TRUSTMARK Video Walkthrough" width="600" />
+  </a>
+</p>
+
+<p align="center">
+  ▶️ <strong><a href="https://youtu.be/enbr7XDSg0E">Watch TRUSTMARK Video Demo on YouTube</a></strong>
+</p>
 
 ---
 
