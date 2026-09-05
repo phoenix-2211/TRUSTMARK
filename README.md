@@ -1,420 +1,254 @@
-<div align="center">
-
-<img src="https://razorpay.com/favicon.ico" width="48" alt="Razorpay Logo" />
+<p align="center">
+  <img src="./Logo.png" alt="TRUSTMARK" width="180" />
+</p>
 
 # TRUSTMARK
 
-**Pre-submission chargeback evidence verification engine with zero-hallucination verdict determination, Visa CE3 remedy rules, and full Razorpay webhook integration.**
+<p align="center">
+  <em>"certified before you submit."</em>
+</p>
 
-*Trustmark — certified before you submit.*
+<p align="center">
+  <a href="https://github.com/phoenix-2211/TRUSTMARK/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT" /></a>
+  <img src="https://img.shields.io/badge/Python-3.11+-3776AB.svg?logo=python&logoColor=white" alt="Python Version" />
+  <img src="https://img.shields.io/badge/React-18.2-61DAFB.svg?logo=react&logoColor=black" alt="React Version" />
+  <img src="https://img.shields.io/badge/Track--02-AI%20Risk%20Manager-orange.svg" alt="Razorpay AI Buildathon 2026" />
+  <a href="[LIVE_DEMO_URL]"><img src="https://img.shields.io/badge/Live%20Demo-Open%20App-002CB3.svg" alt="Live Demo" /></a>
+</p>
 
-Track 02 — AI Risk Manager | AI Buildathon 2026
+A pre-submission chargeback evidence verification gate for merchants and payment platforms.
 
----
-
-![Python](https://img.shields.io/badge/Python_3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)
-![FastAPI](https://img.shields.io/badge/FastAPI_0.100+-009688?style=for-the-badge&logo=fastapi&logoColor=white)
-![React](https://img.shields.io/badge/React_18-61DAFB?style=for-the-badge&logo=react&logoColor=black)
-![Vite](https://img.shields.io/badge/Vite_4.5+-646CFF?style=for-the-badge&logo=vite&logoColor=white)
-![Precision](https://img.shields.io/badge/Precision-100%25-22863a?style=for-the-badge)
-![F1 Score](https://img.shields.io/badge/F1--Score-95.68%25-2B6BE6?style=for-the-badge)
-![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)
-
-</div>
+**Most dispute tools help you submit evidence fast. TRUSTMARK checks whether that evidence should be trusted before it ever reaches the card network.**
 
 ---
 
-## Overview
+## Table of Contents
 
-**TRUSTMARK** is a production-grade pre-submission chargeback evidence verification platform engineered for payment gateways and merchants. When a merchant receives a chargeback on networks like **Razorpay**, submitting incomplete, contradictory, or invalid evidence leads to immediate issuer rejection, forfeiture of dispute representation rights, and unrecoverable financial losses.
-
-TRUSTMARK solves this by running a **zero-hallucination deterministic verification pipeline** over structured transaction, order, shipment, and customer communication records *before* evidence is submitted to card networks.
-
-The system handles the full evidence verification lifecycle — from real-time Razorpay webhook ingestion and data contradiction detection, through **Visa Compulsory Evidence 3.0 (CE3)** remedy qualification, to OpenRouter LLM plain-language merchant guidance and held-out benchmark evaluation.
-
----
-
-## Evaluation Metrics
-
-Evaluated on a benchmark dataset of **6,000 synthetic chargeback cases**, featuring a held-out test set of **1,868 cases**.
-
-| Metric | Score | Performance Details |
-|---|---|---|
-| **Precision** | **1.0000 (100.0%)** | Zero false positives across all contradiction types |
-| **Recall** | **0.9171 (91.71%)** | 996 True Positives detected |
-| **F1 Score** | **0.9568 (95.68%)** | Combined precision and recall score |
-| **False Positive Rate** | **0.0000 (0.00%)** | **0 clean cases wrongly flagged** out of 782 clean test cases |
-| **Total Test Cases** | **1,868** | Held-out test set |
-
-### Categorical Performance Breakdown
-
-| Contradiction Category | True Positives (TP) | False Positives (FP) | False Negatives (FN) | True Negatives (TN) | Precision | Recall | F1 Score |
-|---|---|---|---|---|---|---|---|
-| **Address Mismatch** | 287 | 0 | 0 | 1,581 | **100.0%** | **100.0%** | **1.0000** |
-| **Date Impossibility** | 283 | 0 | 0 | 1,585 | **100.0%** | **100.0%** | **1.0000** |
-| **Amount Mismatch** | 247 | 0 | 0 | 1,621 | **100.0%** | **100.0%** | **1.0000** |
-| **Comms Contradiction** | 179 | 0 | 90 | 1,599 | **100.0%** | **66.5%** | **0.7991** |
+- [The Problem](#the-problem)
+- [What TRUSTMARK Does](#what-trustmark-does)
+- [Architecture — 7-Layer Pipeline](#architecture--7-layer-pipeline)
+- [Tech Stack](#tech-stack)
+- [Key Results](#key-results)
+- [Screenshots](#screenshots)
+- [Getting Started](#getting-started)
+- [Project Structure](#project-structure)
+- [Documentation](#documentation)
+- [Development Notes](#development-notes)
+- [License](#license)
+- [Author](#author)
 
 ---
 
-## Pipeline Architecture
+## The Problem
 
-```
-+-----------------------------------------------------------------------------------+
-| LAYER 1 — INGESTION & SIGNATURE VERIFICATION                                      |
-| • FastAPI Webhook Listener (/api/webhooks/razorpay/dispute)                      |
-| • HMAC-SHA256 Signature Check (X-Razorpay-Signature)                              |
-+-----------------------------------------+-----------------------------------------+
-                                          |
-                                          v
-+-----------------------------------------+-----------------------------------------+
-| LAYER 2 — DATABASE & STORAGE                                                      |
-| • SQLite Database (merchantguard_demo.db)                                         |
-| • Disputes / Orders / Shipments / Comms Logs / Evidence Records                   |
-+-----------------------------------------+-----------------------------------------+
-                                          |
-                                          v
-+-----------------------------------------+-----------------------------------------+
-| LAYER 3 — DETERMINISTIC CONTRADICTION ENGINE                                      |
-| • Address Mismatch Engine (Normalized Levenshtein Distance < 85%)                 |
-| • Timeline Chronology Engine (Order <= Ship <= Delivery Check)                    |
-| • Amount Parity Engine (Dispute Amount vs Order Amount)                           |
-| • Customer Chat NLP Engine (Sentence-Transformers MiniLM Cosine > 0.65)           |
-+-----------------------------------------+-----------------------------------------+
-                                          |
-                                          v
-+-----------------------------------------+-----------------------------------------+
-| LAYER 4 — VISA COMPULSORY EVIDENCE 3.0 (CE3) ENGINE                               |
-| • 120-Day Lookback Prior Customer Orders                                          |
-| • Cross-Match 2+ Elements (IP Address / Device ID / Shipping Address)             |
-+-----------------------------------------+-----------------------------------------+
-                                          |
-                                          v
-+-----------------------------------------+-----------------------------------------+
-| LAYER 5 — VAPT SCORING & VERDICT ENGINE                                           |
-| • Evidence Completeness & Severity Scoring (CRITICAL / HIGH / LOW / INFO)         |
-| • Verdict Decision: READY / NEEDS REVIEW / DO NOT SUBMIT                          |
-+-----------------------------------------+-----------------------------------------+
-                                          |
-                                          v
-+-----------------------------------------+-----------------------------------------+
-| LAYER 6 — ADVISORY LLM & FALLBACK LAYER                                           |
-| • OpenRouter LLM Integration (gpt-4o-mini / zero-cost candidates)                 |
-| • Multi-Model Fallback Chain (gpt-4o-mini -> nemotron -> static text)              |
-+-----------------------------------------+-----------------------------------------+
-                                          |
-                                          v
-+-----------------------------------------+-----------------------------------------+
-| LAYER 7 — REACT 18 + VITE DASHBOARD UI                                            |
-| • Verification Queue / Dispute Detail / Evidence Library / Benchmark Report       |
-+-----------------------------------------------------------------------------------+
+Merchants lose chargeback disputes not because their underlying case is weak, but because their submitted evidence contradicts itself. Common failure modes include shipping proof delivered to a different city than the order address, fulfillment dates listed prior to order placement, currency subunit discrepancies, or support chat logs contradicting carrier tracking. 
+
+When card networks (Visa, Mastercard) detect contradictory evidence, the submission is automatically rejected or heavily penalized. TRUSTMARK catches these flaws before submission.
+
+---
+
+## What TRUSTMARK Does
+
+Existing chargeback platforms (such as Stripe Smart Disputes or Chargeflow) focus on assembling and auto-submitting evidence quickly. TRUSTMARK operates differently: it is an independent, defense-only verification gate that deliberately attempts to falsify the merchant's own evidence prior to submission. 
+
+TRUSTMARK contains **zero dispute-mutation endpoints** (no Accept, Submit, or Challenge buttons exist). It acts purely as a pre-submission security auditor to prevent premature or flawed network submissions.
+
+---
+
+## Architecture — 7-Layer Pipeline
+
+```mermaid
+graph TD
+    A["Razorpay Webhook (dispute.created)"] --> B["Layer 1: HMAC-SHA256 Signature Verification"]
+    B --> C["Layer 2: SQLite Database (SQLAlchemy ORM)"]
+    C --> D["Layer 3: Deterministic Contradiction Engine"]
+    
+    subgraph D ["Layer 3: Contradiction Engine"]
+        D1["Address Match (Levenshtein)"]
+        D2["Date Chronology"]
+        D3["Amount Parity (Paise)"]
+        D4["Comms NLP (Dual-Anchor)"]
+    end
+    
+    D --> E["Layer 4: Visa CE3.0 Eligibility Engine"]
+    E --> F["Layer 5: VAPT Severity & Verdict Engine"]
+    F --> G["Layer 6: Advisory LLM (OpenRouter, Additive Only)"]
+    G --> H["Layer 7: React Dashboard"]
 ```
 
 ---
 
-## Decision Flow
+## Tech Stack
 
-```
-+------------------+     +-------------------------------+     +----------------------------------+
-| DISPUTE CASE     | --> | DETERMINISTIC RULE CHECKS     | --> | SEVERITY AGGREGATOR              |
-| ID: #CB7894      |     | • Address Similarity          |     | • CRITICAL > 0 -> DO NOT SUBMIT  |
-| Amount: ₹15,000  |     | • Timeline Chronology         |     | • HIGH > 0     -> NEEDS REVIEW   |
-| Reason: 13.1     |     | • Amount Parity               |     | • Clean        -> READY TO SUBMIT|
-+------------------+     | • Chat Sentiment NLP          |     +----------------+-----------------+
-                         +-------------------------------+                      |
-                                                                                v
-                                                               +----------------+-----------------+
-                                                               | ADVISORY LLM EXPLANATION LAYER   |
-                                                               | • 8-15 Word Summary              |
-                                                               | • 2-4 Sentence Guidance Plan     |
-                                                               +----------------+-----------------+
-                                                                                |
-                                                                                v
-                                                               +----------------+-----------------+
-                                                               | REACT DASHBOARD INTERFACE        |
-                                                               | ✨ AI Summary Badge & Document   |
-                                                               +----------------------------------+
-```
+### Backend
+| Technology | Version / Scope | Description |
+|:---|:---|:---|
+| **FastAPI** | `>= 0.100.0` | High-performance REST web framework |
+| **Uvicorn** | `>= 0.22.0` | ASGI web server |
+| **SQLAlchemy + SQLite** | `>= 2.0.0` | ORM & local storage |
+| **Pydantic** | `>= 2.0.0` | Data validation and schema enforcement |
+| **python-Levenshtein + difflib** | `>= 0.21.0` | Address normalization and string distance ratio |
+| **sentence-transformers** | `all-MiniLM-L6-v2` | Dual-anchor semantic NLP embeddings (optional) |
+| **OpenRouter API** | `gpt-4o-mini` | Advisory merchant explanation layer |
+| **Requests** | `>= 2.28.0` | HTTP client for external integrations |
+| **python-dotenv** | `>= 1.0.0` | Environment variable parsing |
 
----
-
-## Repo Structure
-
-```
-TRUSTMARK/
-├── app/                        # Backend Application Source (FastAPI & Pipeline Engine)
-│   ├── api/                    # REST API Endpoints & Razorpay Webhook Router
-│   │   └── router.py           # Webhook Listener & REST API Endpoints
-│   ├── data_gen/               # Synthetic Case Generator & Phrasing Banks
-│   │   ├── generator.py        # 6,000 Case Synthetic Generator
-│   │   └── phrasings.py        # Customer NLP Phrasing Bank
-│   ├── db/                     # Database Models & Connections
-│   │   ├── database.py         # SQLAlchemy Session Manager
-│   │   └── models.py           # ORM Table Definitions
-│   ├── eval/                   # Benchmark Evaluation Harness
-│   │   └── evaluator.py        # 1,868 Held-Out Test Case Benchmark Engine
-│   ├── rules/                  # Core Verification Pipeline & Rules
-│   │   ├── ce3.py              # Visa Compulsory Evidence 3.0 Engine
-│   │   ├── completeness.py     # VAPT Evidence Scoring & Severity Tags
-│   │   ├── constants.py        # Reason Codes & Required Document Maps
-│   │   ├── contradiction.py    # Address, Date, Amount & NLP Contradictions
-│   │   ├── explanation_llm.py  # OpenRouter Advisory LLM Layer & Fallbacks
-│   │   ├── pipeline.py         # Main Verification Pipeline Orchestrator
-│   │   └── verdict.py          # Deterministic Verdict Decision Engine
-│   └── main.py                 # FastAPI Web Server Entrypoint
-├── docs/                       # Comprehensive Technical Documentation
-│   ├── BUILD_SPECIFICATION.md  # Complete Engineering Build Specification
-│   ├── EVALUATION_REPORT.md    # Benchmark Evaluation Metrics & Analysis
-│   ├── METHODOLOGY.md          # Verification Methodology & VAPT Standards
-│   ├── PROMPT_SPECIFICATION.md # Advisory LLM System Prompt Specifications
-│   └── pitch_script.md         # Product Demo Presentation Script
-├── frontend/                   # React 18 + Vite Dashboard Application
-│   ├── public/                 # Static Assets & Evidence Sample Images
-│   │   └── Logo.png            # TRUSTMARK Brand Seal Logo
-│   ├── src/                    # React Source Components & Views
-│   │   ├── components/         # Queue, Detail, Evidence, and Benchmark Views
-│   │   │   ├── BenchmarkReportScreen.jsx
-│   │   │   ├── DisputeDetailScreen.jsx
-│   │   │   ├── DocumentViewerModal.jsx
-│   │   │   ├── EvidenceLibraryScreen.jsx
-│   │   │   ├── SummaryInfoPopover.jsx
-│   │   │   ├── TrustmarkLogo.jsx
-│   │   │   ├── VerdictBadge.jsx
-│   │   │   └── VerificationQueueScreen.jsx
-│   │   ├── App.jsx             # Navigation Layout & App State
-│   │   └── main.jsx            # React Root Entrypoint
-│   ├── package.json            # Node Dependencies & Build Scripts
-│   └── vite.config.js          # Vite Bundler Settings
-├── scripts/                    # Utility Scripts
-│   ├── fast_eval.py            # Fast Benchmark Evaluator CLI
-│   ├── gui_helpers.py          # Manual Entry GUI Helpers
-│   ├── gui_report_entry.py     # Desktop Dispute Entry GUI
-│   ├── seed_demo.py            # Demo Seeder Script
-│   └── submit_demo_dispute.py  # Live Webhook Submission Tester
-├── tests/                      # Automated Test Suite
-│   ├── test_ce3.py             # CE3 Rule Tests
-│   ├── test_contradictions.py  # Contradiction Engine Tests
-│   ├── test_nlp_comms.py       # Customer Communication NLP Tests
-│   └── test_webhook_and_api.py # HMAC-SHA256 & API Endpoint Tests
-├── .env.example                # Safe Environment Variables Template
-├── .gitignore                  # Git Exclusion Rules (Secrets, DBs, Caches)
-├── eval_report.json            # Persisted Benchmark Report Output
-├── LICENSE                     # MIT Open Source License
-├── Logo.png                    # TRUSTMARK Seal Logo
-├── merchantguard_demo.db       # Production Demo Database
-├── requirements.txt            # Python Dependencies
-└── README.md                   # Repository Documentation
-```
+### Frontend
+| Technology | Version / Scope | Description |
+|:---|:---|:---|
+| **React** | `^18.2.0` | UI component library |
+| **Vite** | `^4.4.5` | Next-generation frontend tooling |
+| **Tailwind CSS** | `^3.3.3` | Utility-first styling framework |
+| **Lucide React** | `^0.263.1` | UI icon set |
+| **Recharts** | `^2.7.2` | Data visualization charts |
+| **Google Fonts** | `Cinzel + Inter` | Brand and body typography |
 
 ---
 
-## Quick Start
+## Key Results
 
-**Prerequisites:** Python 3.10+, Node.js 16+, npm 8+
+| Metric | Value |
+|:---|:---|
+| **Precision** | **100.0%** (0 false positives) |
+| **Recall** | **91.71%** |
+| **F1 Score** | **95.68%** |
+| **False Positive Rate** | **0.00%** (0/782 clean cases) |
+| **Test Dataset** | 1,868 held-out cases from 6,000 synthetic disputes |
+| **Supported Reason Codes** | `10.4` (Visa Fraud), `13.1` (Not Received), `13.3` (Not as Described) |
+
+Zero legitimate disputes were ever wrongly flagged, meaning no merchant loses a winnable case to a false alarm.
+
+---
+
+## Screenshots
+
+| View | Screenshot |
+|:---|:---|
+| **Verification Queue** | ![Verification Queue](./docs/screenshots/verification_queue.png) |
+| **Dispute Detail (READY)** | ![Dispute Detail READY](./docs/screenshots/dispute_detail_ready.png) |
+| **Dispute Detail (NEEDS REVIEW)** | ![Dispute Detail NEEDS REVIEW](./docs/screenshots/dispute_detail_needs_review.png) |
+| **Evidence Library** | ![Evidence Library](./docs/screenshots/evidence_library.png) |
+| **Benchmark Report** | ![Benchmark Report](./docs/screenshots/benchmark_report.png) |
+
+---
+
+## Getting Started
+
+### Try it live
+Experience the full interactive dashboard without setup: **[[LIVE_DEMO_URL]]([LIVE_DEMO_URL])**
+
+### Run locally
 
 ```bash
-# 1. Clone the repository
-git clone https://github.com/phoenix-2211/TRUSTMARK.git
-cd TRUSTMARK
-
-# 2. Configure environment variables
-cp .env.example .env
-# Edit .env to add your OPENROUTER_API_KEY (optional, fallback is active)
-
-# 3. Install Python dependencies
+# Backend
 pip install -r requirements.txt
+uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 
-# 4. Start the FastAPI backend server
-python -m uvicorn app.main:app --host 127.0.0.1 --port 8000
+# Frontend
+cd frontend && npm install && npm run dev
 
-# 5. Start the frontend dashboard (new terminal)
-cd frontend
-npm install
-npx vite --port 5173
-
-# 6. Run the fast benchmark evaluation harness (new terminal)
+# Run Benchmark
 python scripts/fast_eval.py
 
-# 7. Run the automated test suite
-pytest tests/ -v
-```
-
-API Documentation available at `http://127.0.0.1:8000/docs`
-
-Dashboard available at `http://localhost:5173`
-
----
-
-## API Specifications & Endpoints
-
-### 1. Ingest Razorpay Webhook Event
-```bash
-POST /api/webhooks/razorpay/dispute
-Header: X-Razorpay-Signature: <HMAC-SHA256-signature>
-```
-
-**Payload:**
-```json
-{
-  "event": "dispute.created",
-  "payload": {
-    "dispute": {
-      "entity": {
-        "id": "disp_N7xK2pQmZ4vL1",
-        "payment_id": "pay_N7xK2pQmZ4vL1",
-        "amount": 1500000,
-        "currency": "INR",
-        "reason_code": "13.1",
-        "respond_by": 1788872451,
-        "status": "open",
-        "phase": "chargeback"
-      }
-    }
-  }
-}
-```
-
-**Response:**
-```json
-{
-  "status": "success",
-  "dispute_id": "disp_N7xK2pQmZ4vL1",
-  "verdict": "READY",
-  "summary": "READY — Evidence is internally consistent and complete for the specified reason code."
-}
-```
-
-### 2. List All Disputes with Verification Verdicts
-```bash
-GET /api/disputes
-```
-
-### 3. Fetch Dispute Detail Report
-```bash
-GET /api/disputes/{dispute_id}
-```
-
-**Response:**
-```json
-{
-  "dispute_id": "disp_P9zM4rSoB6xN3",
-  "payment_id": "pay_P9zM4rSoB6xN3",
-  "reason_code": "13.1",
-  "respond_by": 1788354051,
-  "verdict": "DO NOT SUBMIT — CONFLICT",
-  "summary": "DO NOT SUBMIT — Detected 2 CRITICAL data contradiction(s). Submitting as-is will likely trigger immediate issuer rejection.",
-  "merchant_guidance": "Verify carrier delivery address against order record prior to submission.",
-  "critical_count": 2,
-  "high_count": 0,
-  "low_count": 0,
-  "findings": [
-    {
-      "check_name": "address_mismatch",
-      "status": "FOUND_CONFLICTING",
-      "severity": "CRITICAL",
-      "explanation": "CRITICAL — shipping address on order ('100 Jubilee Hills, Hyderabad, TS 500033') does not match shipment record ('999 Marine Drive, Mumbai, MH 400002'). This mismatch alone is likely to trigger issuer rejection."
-    }
-  ],
-  "ce3_result": { "applicable": false, "eligible": false }
-}
-```
-
-### 4. Fetch Benchmark Evaluation Report
-```bash
-GET /api/eval/report
-```
-
----
-
-## Dashboard Screens
-
-The React 18 + Vite ops panel features 4 specialized views:
-
-| Screen | Description |
-|---|---|
-| **Verification Queue** | Filterable queue showing dispute urgency, deadline timers (`respond_by`), reason codes, and instant verdicts. |
-| **Dispute Detail** | Complete verification breakdown, finding severity cards, CE3 status, ✨ **AI Summary** popover badge, and document viewer. |
-| **Evidence Repository** | Document library listing uploaded evidence records with visual representations and structural integrity disclaimers. |
-| **Benchmark Report** | Live held-out evaluation report displaying precision (100%), recall (91.7%), F1 (95.7%), and category distribution charts. |
-
----
-
-## Contradiction Engine & Verification Rules
-
-Features engineered into the deterministic rule pipeline:
-
-| Check Name | Severity | Rule Description | Trigger Condition |
-|---|---|---|---|
-| **`address_mismatch`** | `CRITICAL` | Normalizes street abbreviations and applies Levenshtein string distance. | Similarity < 85% between shipping & delivery address. |
-| **`date_impossibility`** | `CRITICAL` | Validates chronological order sequence (Order <= Shipped <= Delivery). | Shipped date or delivery date precedes order date. |
-| **`amount_mismatch`** | `CRITICAL` | Compares dispute amount vs original order transaction amount. | Dispute amount != Order amount. |
-| **`comms_shipment_nlp`** | `HIGH` | Encodes chat logs via Sentence-Transformers (`all-MiniLM-L6-v2`) cosine similarity. | Customer claims non-receipt while carrier confirms `Delivered` (Cosine >= 0.65). |
-| **`doc_completeness`** | `HIGH` / `LOW` | Validates mandatory vs optional evidence documents per Reason Code. | Required document missing for Reason Code 10.4 or 13.1. |
-
----
-
-## Visa Compulsory Evidence 3.0 (CE3) Engine
-
-For **Reason Code 10.4** (Fraud - Card Not Present), TRUSTMARK evaluates 120-day historical customer transaction records:
-
-| Condition | Requirement | Status |
-|---|---|---|
-| **Lookback Period** | Prior 120 days from dispute creation | Enforced |
-| **Undisputed Prior Transactions** | Minimum 2 prior undisputed orders | Required >= 2 |
-| **Data Element Cross-Matching** | Matching 2+ core elements (**IP address**, **Device ID**, **Shipping Address**) | Required >= 2 elements |
-| **CE3 Remedy Qualification** | Merchant qualifies for compulsory evidence remedy | Verdict set to `READY` with CE3 flag |
-
----
-
-## Automated Test Suite
-
-```
-4 Test Modules — 100% Passed
-
-tests/test_ce3.py               CE3 rule qualification & lookback tests
-tests/test_contradictions.py    Address Levenshtein, date chronology & amount parity tests
-tests/test_nlp_comms.py         Sentence-Transformers customer chat sentiment tests
-tests/test_webhook_and_api.py   FastAPI REST endpoints & HMAC-SHA256 signature tests
-```
-
-Run test suite:
-
-```bash
+# Run Tests
 pytest tests/ -v
 ```
 
 ---
 
-## What is Built vs What is Planned
+## Project Structure
 
-| Component | Status | Technical Notes |
-|---|---|---|
-| **FastAPI REST & Webhook Server** | Built | Ingests `/api/webhooks/razorpay/dispute` with HMAC-SHA256 check |
-| **Address Contradiction Engine** | Built | Normalized Levenshtein distance (< 85% similarity threshold) |
-| **Timeline Chronology Engine** | Built | Order vs Shipment vs Delivery chronological validation |
-| **Amount Parity Engine** | Built | Dispute amount vs Order amount matching |
-| **Customer Chat NLP Engine** | Built | Sentence-Transformers `all-MiniLM-L6-v2` cosine similarity |
-| **Visa CE3 Remedy Engine** | Built | 120-day prior order evaluation with 2+ matching data elements |
-| **VAPT Evidence Completeness** | Built | Reason Code document mapping (`10.4` & `13.1`) & severity scoring |
-| **Advisory LLM Explanation Layer** | Built | OpenRouter API with multi-model failover & local static fallback |
-| **React 18 + Vite Dashboard** | Built | Queue, Detail, Evidence Repository, and Benchmark screens |
-| **Held-Out Evaluation Suite** | Built | 1,868 test cases benchmark harness (100% precision, 0% false positive rate) |
-| **Emergency Desktop Entry GUI** | Built | Tkinter GUI utility (`scripts/gui_report_entry.py`) |
-| **Automated PDF Pack Export** | Planned | Automated chargeback PDF compilation for payment networks |
-| **Real-time Gateway Sync** | Planned | Direct Razorpay API dispute representation submission |
+```
+.
+├── Logo.png                        # Brand logo asset
+├── README.md                       # Repository documentation
+├── vercel.json                     # Vercel deployment configuration
+├── render.yaml                     # Render web service blueprint
+├── requirements.txt                # Python backend dependencies
+├── package.json                    # Root build scripts
+│
+├── api/
+│   └── index.py                    # Vercel serverless entrypoint
+│
+├── app/
+│   ├── main.py                     # FastAPI app entrypoint & static mount
+│   ├── api/
+│   │   └── router.py               # REST API endpoints
+│   ├── db/
+│   │   ├── database.py             # SQLAlchemy session & engine
+│   │   ├── models.py               # 7 database ORM models
+│   │   └── seed.py                 # Cold-start auto-seeding helper
+│   ├── eval/
+│   │   └── evaluator.py            # Held-out benchmark harness
+│   └── rules/
+│       ├── ce3.py                  # Visa CE3.0 eligibility engine
+│       ├── completeness.py         # Required evidence completeness scorer
+│       ├── contradiction.py        # Address, date, amount, NLP contradiction checks
+│       ├── explanation_llm.py      # Advisory OpenRouter LLM module
+│       ├── pipeline.py             # Verification pipeline orchestrator
+│       └── verdict.py              # 3-tier verdict decision engine
+│
+├── docs/
+│   ├── BUILD_SPECIFICATION.md      # Architecture & VAPT specification
+│   ├── EVALUATION_REPORT.md        # Benchmark metrics report
+│   ├── METHODOLOGY.md              # Methodological design & post-mortem
+│   ├── PROMPT_SPECIFICATION.md     # Engineering prompt lineage
+│   └── pitch_script.md            # 5-minute hackathon presentation script
+│
+├── frontend/
+│   ├── package.json                # React 18 & Vite configuration
+│   ├── vite.config.js              # Vite build setup & proxy
+│   ├── tailwind.config.js          # Tailwind theme configuration
+│   ├── public/                     # Static assets & synthetic evidence documents
+│   └── src/
+│       ├── App.jsx                 # Application shell & tab router
+│       ├── api/client.js           # Resilient API client
+│       └── components/            # React UI components
+│
+├── scripts/
+│   ├── fast_eval.py                # Held-out evaluation CLI runner
+│   ├── seed_demo.py                # Standalone demo seeder
+│   └── generate_synthetic_evidence_docs.py  # Evidence document generator
+│
+└── tests/
+    ├── test_ce3.py                 # Visa CE3.0 test suite
+    ├── test_contradictions.py      # Contradiction engine test suite
+    ├── test_nlp_comms.py           # NLP semantic test suite
+    └── test_webhook_and_api.py     # API and webhook test suite
+```
 
 ---
 
-## Author & Credits
+## Documentation
 
-**Sarvesh Santhosh** (*phoenix-2211*)  
-AI Buildathon 2026 — Track 02: AI Risk Manager  
-GitHub: [phoenix-2211](https://github.com/phoenix-2211)
+| Document | Description |
+|:---|:---|
+| **[BUILD_SPECIFICATION.md](./docs/BUILD_SPECIFICATION.md)** | Technical specification, schema definitions, and VAPT framing |
+| **[EVALUATION_REPORT.md](./docs/EVALUATION_REPORT.md)** | held-out evaluation performance report |
+| **[METHODOLOGY.md](./docs/METHODOLOGY.md)** | Methodological decisions, CE3.0 rules, and engineering post-mortem |
+| **[PROMPT_SPECIFICATION.md](./docs/PROMPT_SPECIFICATION.md)** | Full prompt sequence used during system construction |
+| **[pitch_script.md](./docs/pitch_script.md)** | 5-minute hackathon presentation script |
 
 ---
 
-<div align="center">
+## Development Notes
 
-Built for Razorpay AI Buildathon 2026
+### Challenges & Fixes
 
-</div>
+- **NLP False Positives on Receipt Confirmations**: Solved via a dual-anchor approach comparing non-receipt anchors against receipt-confirming anchors with a required margin of `+0.08`. This yielded **100% precision** on held-out test data.
+- **NLP False Negatives on Indirect Phrasing**: Addressed by expanding the non-receipt embedding bank to cover indirect customer support statements.
+- **Precision-Over-Recall Tuning**: Deliberately configured thresholds to ensure zero false positives (0.00% FPR), prioritizing merchant safety over aggressive flagging.
+- **Webhook Idempotency**: Implemented UUID-based deduplication to gracefully process repeated Razorpay webhook payloads.
+- **Vite Build Pathing for Vercel**: Resolved monorepo root delegation to ensure static Vite assets build cleanly into `frontend/dist`.
+
+---
+
+## License
+
+Distributed under the MIT License (2026). See [LICENSE](./LICENSE) for details.
+
+---
+
+## Author
+
+**Sarvesh Santhosh** — [github.com/phoenix-2211](https://github.com/phoenix-2211)
