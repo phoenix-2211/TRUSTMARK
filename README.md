@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./Logo.png" alt="TRUSTMARK" width="180" />
+  <img src="https://raw.githubusercontent.com/phoenix-2211/TRUSTMARK/main/Logo.png" alt="TRUSTMARK Logo" width="220" />
 </p>
 
 # TRUSTMARK
